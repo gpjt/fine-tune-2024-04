@@ -9,6 +9,7 @@ dataset = load_dataset(dataset_source)
 base_model = "meta-llama/Meta-Llama-3-8B"
 
 tokenizer = AutoTokenizer.from_pretrained(base_model)
+tokenizer.pad_token = tokenizer.eos_token
 model = AutoModelForCausalLM.from_pretrained(base_model, device_map="cuda")
 
 batch_size = 1
