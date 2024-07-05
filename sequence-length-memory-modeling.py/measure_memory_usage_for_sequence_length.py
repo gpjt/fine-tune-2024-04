@@ -68,7 +68,8 @@ def main(sequence_length):
     stats = torch.cuda.memory_stats()
     active_peak_mib = int(stats["active_bytes.all.peak"] / (1024 * 1024))
     reserved_peak_mib = int(stats["reserved_bytes.all.peak"] / (1024 * 1024))
-    print(f"{sequence_length}, {active_peak_mib}, {reserved_peak_mib}")
+    with open("./results.csv", "a") as f:
+        f.write(f"{sequence_length}, {active_peak_mib}, {reserved_peak_mib}\n")
 
 
 if __name__ == "__main__":
