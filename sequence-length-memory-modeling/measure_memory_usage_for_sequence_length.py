@@ -1,4 +1,5 @@
 import sys
+import time
 
 from datasets import load_dataset
 import torch
@@ -11,11 +12,20 @@ class InterruptTraining(Exception):
 
 
 class InterruptableTrainer(Trainer):
+    END_ON_ITERATION = 30
+
     def training_step(self, model, inputs):
         step = self.state.global_step
-        if step == 30:
+        if step == 2:
+            self.start_time = time.time()
+        if step == self.END_ON_ITERATION:
+            self.end_time = time.time()
             raise InterruptTraining()
         return super().training_step(model, inputs)
+
+    def average_iterations_per_second(self):
+        run_time = self.end_time - self.start_time
+        return (self.END_ON_ITERATION - 1) / run_time
 
 
 def tokenize_function(tokenizer, sequence_length, examples):
@@ -69,7 +79,7 @@ def main(sequence_length):
     active_peak_mib = int(stats["active_bytes.all.peak"] / (1024 * 1024))
     reserved_peak_mib = int(stats["reserved_bytes.all.peak"] / (1024 * 1024))
     with open("./results.csv", "a") as f:
-        f.write(f"{sequence_length}, {active_peak_mib}, {reserved_peak_mib}\n")
+        f.write(f"{sequence_length}, {active_peak_mib}, {reserved_peak_mib}, {trainer.average_iterations_per_second()}\n")
 
 
 if __name__ == "__main__":

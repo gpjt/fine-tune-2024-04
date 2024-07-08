@@ -3,7 +3,7 @@ import subprocess
 with open("./results.csv", "w") as f:
     pass
 
-for sequence_length in range(1, 2049, 10):
+for sequence_length in range(1, 2049):
     succeeded = False
     tries = 0
     while not succeeded and tries < 5:
