@@ -38,7 +38,7 @@ def main(sequence_length):
     dataset_source = "timdettmers/openassistant-guanaco"
     dataset = load_dataset(dataset_source)
 
-    base_model = "Qwen/Qwen1.5-0.5B"
+    base_model = "meta-llama/Meta-Llama-3-8B"
     tokenizer = AutoTokenizer.from_pretrained(base_model)
     model = AutoModelForCausalLM.from_pretrained(base_model)
 
@@ -75,11 +75,19 @@ def main(sequence_length):
     except InterruptTraining:
         pass
 
-    stats = torch.cuda.memory_stats()
-    active_peak_mib = int(stats["active_bytes.all.peak"] / (1024 * 1024))
-    reserved_peak_mib = int(stats["reserved_bytes.all.peak"] / (1024 * 1024))
+    memory_usages = []
+    for gpu in range(8):
+        stats = torch.cuda.memory_stats(device=f"cuda{gpu}")
+        memory_usages.append((
+            int(stats["active_bytes.all.peak"] / (1024 * 1024)),
+            int(stats["reserved_bytes.all.peak"] / (1024 * 1024))
+        ))
     with open("./results.csv", "a") as f:
-        f.write(f"{sequence_length}, {active_peak_mib}, {reserved_peak_mib}, {trainer.average_iterations_per_second()}\n")
+        f.write(f"{sequence_length}, ")
+        for memory_usage in memory_usages:
+            active_peak_mib, reserved_peak_mib = memory_usage
+            f.write(f"{active_peak_mib}, {reserved_peak_mib}, ")
+        f.write(f"{trainer.average_iterations_per_second()}\n")
 
 
 if __name__ == "__main__":
