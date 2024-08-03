@@ -40,6 +40,7 @@ def main(sequence_length):
 
     base_model = "meta-llama/Meta-Llama-3-8B"
     tokenizer = AutoTokenizer.from_pretrained(base_model)
+    tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(base_model)
 
     batch_size = 1
@@ -77,7 +78,7 @@ def main(sequence_length):
 
     memory_usages = []
     for gpu in range(8):
-        stats = torch.cuda.memory_stats(device=f"cuda{gpu}")
+        stats = torch.cuda.memory_stats(device=gpu)
         memory_usages.append((
             int(stats["active_bytes.all.peak"] / (1024 * 1024)),
             int(stats["reserved_bytes.all.peak"] / (1024 * 1024))
