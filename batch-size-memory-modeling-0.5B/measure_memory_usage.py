@@ -21,6 +21,12 @@ for batch_size in count(1):
         except subprocess.CalledProcessError as exc:
             print(f"************************** ERROR {exc}")
 
+    with open("./results.csv", "r") as f:
+        lines = f.readlines()
+        if "OOM" in lines[-1]:
+            print("Hit an OOM, exiting.")
+            break
+
     if not succeeded:
         print("***************** Too many failures, crapping out")
         break
