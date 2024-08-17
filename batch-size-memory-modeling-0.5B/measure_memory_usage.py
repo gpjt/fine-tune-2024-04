@@ -1,9 +1,11 @@
+from itertools import count
+
 import subprocess
 
 with open("./results.csv", "w") as f:
     pass
 
-for sequence_length in range(1, 2049):
+for batch_size in count(1):
     succeeded = False
     tries = 0
     while not succeeded and tries < 5:
@@ -11,9 +13,9 @@ for sequence_length in range(1, 2049):
         try:
             subprocess.check_call([
                 "deepspeed",
-                "measure_memory_usage_for_sequence_length.py",
+                "measure_memory_usage_for_batch_size.py",
                 "--",
-                str(sequence_length)
+                str(batch_size)
             ])
             succeeded = True
         except subprocess.CalledProcessError as exc:
