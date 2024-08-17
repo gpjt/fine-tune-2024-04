@@ -28,13 +28,13 @@ class InterruptableTrainer(Trainer):
         return (self.END_ON_ITERATION - 1) / run_time
 
 
-def tokenize_function(tokenizer, sequence_length, examples):
-    tokenized = tokenizer(examples["text"], truncation=True, padding="max_length", max_length=sequence_length)
+def tokenize_function(tokenizer, examples):
+    tokenized = tokenizer(examples["text"], truncation=True, padding="max_length", max_length=2048)
     tokenized["labels"] = tokenized["input_ids"][:]
     return tokenized
 
 
-def main(sequence_length):
+def main(batch_size):
     dataset_source = "timdettmers/openassistant-guanaco"
     dataset = load_dataset(dataset_source)
 
@@ -42,7 +42,6 @@ def main(sequence_length):
     tokenizer = AutoTokenizer.from_pretrained(base_model)
     model = AutoModelForCausalLM.from_pretrained(base_model)
 
-    batch_size = 1
     args = TrainingArguments(
         'outputs',
         learning_rate=8e-5,
@@ -51,7 +50,7 @@ def main(sequence_length):
         fp16=True,
         evaluation_strategy="epoch",
         per_device_train_batch_size=batch_size,
-        per_device_eval_batch_size=batch_size * 2,
+        per_device_eval_batch_size=batch_size,
         num_train_epochs=2,
         weight_decay=0.01,
         deepspeed="ds_config.json",
@@ -59,7 +58,7 @@ def main(sequence_length):
     )
 
     tokenized_dataset = dataset.map(
-        lambda examples: tokenize_function(tokenizer, sequence_length, examples),
+        lambda examples: tokenize_function(tokenizer, examples),
         batched=True
     )
 
@@ -74,12 +73,16 @@ def main(sequence_length):
         trainer.train()
     except InterruptTraining:
         pass
+    except torch.cuda.OutOfMemoryError:
+        with open("./results.csv", "a") as f:
+            f.write(f"{batch_size}, OOM\n")
+            return
 
     stats = torch.cuda.memory_stats()
     active_peak_mib = int(stats["active_bytes.all.peak"] / (1024 * 1024))
     reserved_peak_mib = int(stats["reserved_bytes.all.peak"] / (1024 * 1024))
     with open("./results.csv", "a") as f:
-        f.write(f"{sequence_length}, {active_peak_mib}, {reserved_peak_mib}, {trainer.average_iterations_per_second()}\n")
+        f.write(f"{batch_size}, {active_peak_mib}, {reserved_peak_mib}, {trainer.average_iterations_per_second()}\n")
 
 
 if __name__ == "__main__":
