@@ -41,6 +41,7 @@ def main(batch_size):
     base_model = "Qwen/Qwen1.5-0.5B"
     tokenizer = AutoTokenizer.from_pretrained(base_model)
     model = AutoModelForCausalLM.from_pretrained(base_model)
+    model.gradient_checkpointing_enable()
 
     args = TrainingArguments(
         'outputs',
