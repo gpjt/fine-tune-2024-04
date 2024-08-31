@@ -42,6 +42,7 @@ def main(batch_size):
     tokenizer = AutoTokenizer.from_pretrained(base_model)
     tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(base_model)
+    model.gradient_checkpointing_enable()
 
     args = TrainingArguments(
         'outputs',
