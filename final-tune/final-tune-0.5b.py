@@ -16,7 +16,6 @@ def main(batch_size):
     base_model = "Qwen/Qwen1.5-0.5B"
     tokenizer = AutoTokenizer.from_pretrained(base_model)
     model = AutoModelForCausalLM.from_pretrained(base_model)
-    model.gradient_checkpointing_enable()
 
     args = TrainingArguments(
         'outputs',
@@ -27,7 +26,7 @@ def main(batch_size):
         evaluation_strategy="epoch",
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
-        num_train_epochs=0,
+        num_train_epochs=1,
         weight_decay=0.01,
         deepspeed="ds_config.json",
         report_to='none',
