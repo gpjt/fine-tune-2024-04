@@ -62,4 +62,14 @@ for row in list(reformatted_dataset["train"]) + list(reformatted_dataset["test"]
 assert len(human_prompts) == 0
 assert len(assistant_prompts) == 0
 
-reformatted_dataset.push_to_hub("gpjt/openassistant-guanaco-llama2-format")
+def replace_original_text_column(example):
+    example["text"] = example["reformatted_text"]
+    return example
+
+
+final_dataset = reformatted_dataset.map(
+    replace_original_text_column,
+    remove_columns=["reformatted_text"]
+)
+
+final_dataset.push_to_hub("gpjt/openassistant-guanaco-llama2-format")
