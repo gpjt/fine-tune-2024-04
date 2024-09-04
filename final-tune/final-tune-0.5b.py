@@ -26,7 +26,7 @@ def main(batch_size):
         evaluation_strategy="epoch",
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
-        num_train_epochs=1,
+        num_train_epochs=0,
         weight_decay=0.01,
         deepspeed="ds_config.json",
         report_to='none',
@@ -47,6 +47,7 @@ def main(batch_size):
     trainer.train()
 
     model.push_to_hub("gpjt/Qwen1.5-0.5B-openassistant-guanaco-llama2-format")
+    tokenizer.push_to_hub("gpjt/Qwen1.5-0.5B-openassistant-guanaco-llama2-format")
 
 
 if __name__ == "__main__":
