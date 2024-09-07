@@ -2,8 +2,6 @@ from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import TrainingArguments, Trainer
 
-from test_model import ask_question
-
 
 def tokenize_function(tokenizer, examples):
     tokenized = tokenizer(examples["text"], truncation=True, padding="max_length", max_length=2048)
@@ -48,10 +46,7 @@ def main(batch_size):
 
     trainer.train()
 
-    ask_question(model, tokenizer, "Who was Leonardo da Vinci?")
-
-    model.push_to_hub("gpjt/Qwen1.5-0.5B-openassistant-guanaco-llama2-format")
-    tokenizer.push_to_hub("gpjt/Qwen1.5-0.5B-openassistant-guanaco-llama2-format")
+    trainer.save_model("final-result")
 
 
 if __name__ == "__main__":

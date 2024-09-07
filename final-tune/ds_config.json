@@ -1,6 +1,7 @@
 {
     "zero_optimization": {
-        "stage": 3
+        "stage": 3,
+        "stage3_gather_16bit_weights_on_model_save": true
     },
     "fp16": {
         "enabled": true
