@@ -3,7 +3,7 @@
         "stage": 3,
         "stage3_gather_16bit_weights_on_model_save": true
     },
-    "fp16": {
+    "bf16": {
         "enabled": true
     },
     "optimizer": {

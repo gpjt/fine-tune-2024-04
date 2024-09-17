@@ -22,7 +22,7 @@ def main(batch_size):
         learning_rate=8e-5,
         warmup_ratio=0.1,
         lr_scheduler_type='cosine',
-        fp16=True,
+        bf16=True,
         evaluation_strategy="epoch",
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
