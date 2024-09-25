@@ -10,7 +10,7 @@ def tokenize_function(tokenizer, examples):
 
 
 def main(batch_size):
-    dataset_source = "timdettmers/openassistant-guanaco"
+    dataset_source = "gpjt/openassistant-guanaco-llama2-format"
     dataset = load_dataset(dataset_source)
 
     base_model = "Qwen/Qwen1.5-0.5B"
