@@ -1,6 +1,5 @@
 from datasets import load_dataset
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers import TrainingArguments, Trainer
+from transformers import AutoModelForCausalLM, AutoTokenizer, EarlyStoppingCallback, Trainer, TrainingArguments
 
 
 def tokenize_function(tokenizer, examples):
@@ -24,13 +23,20 @@ def main(batch_size):
         lr_scheduler_type='cosine',
         bf16=True,
         evaluation_strategy="epoch",
+        save_strategy="epoch",
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
-        num_train_epochs=0,
+        num_train_epochs=9,
         weight_decay=0.01,
         deepspeed="ds_config.json",
         report_to='none',
+        load_best_model_at_end=True,
+        metric_for_best_model="eval_loss",
+        greater_is_better=False,
+        save_total_limit=1,
+        push_to_hub=False,
     )
+    early_stopping = EarlyStoppingCallback(early_stopping_patience=3)
 
     tokenized_dataset = dataset.map(
         lambda examples: tokenize_function(tokenizer, examples),
@@ -42,6 +48,7 @@ def main(batch_size):
         train_dataset=tokenized_dataset['train'],
         eval_dataset=tokenized_dataset['test'],
         tokenizer=tokenizer,
+        callbacks=[early_stopping],
     )
 
     trainer.train()
