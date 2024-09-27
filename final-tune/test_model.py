@@ -1,6 +1,7 @@
 import sys
 import time
 
+import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 from prompt import prompt_template
@@ -25,7 +26,7 @@ def ask_question(model, tokenizer, question):
 
 def test_model(model_name):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="cuda")
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="cuda", torch_dtype=torch.bfloat16)
 
     question = input("You: ")
     ask_question(model, tokenizer, question)
